@@ -115,24 +115,32 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
 	@Override
 	@Nullable
 	public NamespaceHandler resolve(String namespaceUri) {
+		// 获取所有已经配置好的handler映射
 		Map<String, Object> handlerMappings = getHandlerMappings();
+		// 根据命名空间找到对应信息
 		Object handlerOrClassName = handlerMappings.get(namespaceUri);
 		if (handlerOrClassName == null) {
 			return null;
 		}
 		else if (handlerOrClassName instanceof NamespaceHandler) {
+			// 如果已经做过解析，handlerMappings中存放的就是对应的处理器对象，直接返回
 			return (NamespaceHandler) handlerOrClassName;
 		}
 		else {
+			// 如果没有做过解析，handlerMappings.get(namespaceUri)则返回的是类路径
 			String className = (String) handlerOrClassName;
 			try {
+				// 通过反射将类路径转化为类
 				Class<?> handlerClass = ClassUtils.forName(className, this.classLoader);
 				if (!NamespaceHandler.class.isAssignableFrom(handlerClass)) {
 					throw new FatalBeanException("Class [" + className + "] for namespace [" + namespaceUri +
 							"] does not implement the [" + NamespaceHandler.class.getName() + "] interface");
 				}
+				// 实例化类
 				NamespaceHandler namespaceHandler = (NamespaceHandler) BeanUtils.instantiateClass(handlerClass);
+				// 调用自定义namespaceHandler的初始化init()方法
 				namespaceHandler.init();
+				// 将结果纪律到缓存中
 				handlerMappings.put(namespaceUri, namespaceHandler);
 				return namespaceHandler;
 			}
