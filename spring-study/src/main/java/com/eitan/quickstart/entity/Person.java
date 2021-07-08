@@ -1,4 +1,4 @@
-package com.eitan.entity;
+package com.eitan.quickstart.entity;
 
 public class Person {
 	private Integer id;
