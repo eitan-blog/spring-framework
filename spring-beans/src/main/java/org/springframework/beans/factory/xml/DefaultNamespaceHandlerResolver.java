@@ -140,7 +140,7 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
 				NamespaceHandler namespaceHandler = (NamespaceHandler) BeanUtils.instantiateClass(handlerClass);
 				// 调用自定义namespaceHandler的初始化init()方法
 				namespaceHandler.init();
-				// 将结果纪律到缓存中
+				// 将结果记录到缓存中
 				handlerMappings.put(namespaceUri, namespaceHandler);
 				return namespaceHandler;
 			}
