@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<bean id="customer" class="com.eitan.editor.entity.Customer">
+		<property name="name" value="zs"></property>
+		<property name="address" value="福建省_福州市_闽侯县"></property>
+ 	</bean>
+	<bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+		<property name="propertyEditorRegistrars">
+			<list>
+				<bean class="com.eitan.editor.registrar.AddressPropertyEditorRegistrar"></bean>
+			</list>
+		</property>
+	</bean>
+	<bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+		<property name="customEditors">
+			<map>
+				<entry key="com.eitan.editor.entity.Address">
+					<value>com.eitan.editor.editor.AddressPropertyEditor</value>
+				</entry>
+			</map>
+		</property>
+	</bean>
+</beans>
