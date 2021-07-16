@@ -6,6 +6,7 @@
 		<property name="name" value="zs"></property>
 		<property name="address" value="福建省_福州市_闽侯县"></property>
  	</bean>
+	<!-- 方式一 -->
 	<bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
 		<property name="propertyEditorRegistrars">
 			<list>
@@ -13,6 +14,7 @@
 			</list>
 		</property>
 	</bean>
+	<!-- 方式二 -->
 	<bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
 		<property name="customEditors">
 			<map>
