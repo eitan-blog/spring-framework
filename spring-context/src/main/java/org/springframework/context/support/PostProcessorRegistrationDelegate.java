@@ -73,6 +73,8 @@ final class PostProcessorRegistrationDelegate {
 		// https://github.com/spring-projects/spring-framework/issues?q=PostProcessorRegistrationDelegate+is%3Aclosed+label%3A%22status%3A+declined%22
 
 		// Invoke BeanDefinitionRegistryPostProcessors first, if any.
+		// 先执行 BeanDefinitionRegistryPostProcessors
+		// 将已经执行过的 BFPP 存储在 processedBean 中，防止重复执行
 		Set<String> processedBeans = new HashSet<>();
 
 		if (beanFactory instanceof BeanDefinitionRegistry) {
@@ -113,6 +115,7 @@ final class PostProcessorRegistrationDelegate {
 			currentRegistryProcessors.clear();
 
 			// Next, invoke the BeanDefinitionRegistryPostProcessors that implement Ordered.
+			// 上述代码可以新增 BeanDefinitionRegistryPostProcessor，所以这里要重新获取
 			postProcessorNames = beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
 			for (String ppName : postProcessorNames) {
 				if (!processedBeans.contains(ppName) && beanFactory.isTypeMatch(ppName, Ordered.class)) {
@@ -286,16 +289,21 @@ final class PostProcessorRegistrationDelegate {
 
 	private static void sortPostProcessors(List<?> postProcessors, ConfigurableListableBeanFactory beanFactory) {
 		// Nothing to sort?
+		// 如果个数小于等于1，那么无需排序
 		if (postProcessors.size() <= 1) {
 			return;
 		}
 		Comparator<Object> comparatorToUse = null;
+		// 判断是否是DefaultListableBeanFactory
 		if (beanFactory instanceof DefaultListableBeanFactory) {
+			// 获取设置比较器
 			comparatorToUse = ((DefaultListableBeanFactory) beanFactory).getDependencyComparator();
 		}
 		if (comparatorToUse == null) {
+			// 如果没有设置比较器，则使用默认的OrderComparator
 			comparatorToUse = OrderComparator.INSTANCE;
 		}
+		// 使用比较器对postProcessors进行排序
 		postProcessors.sort(comparatorToUse);
 	}
 
