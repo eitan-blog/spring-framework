@@ -91,14 +91,19 @@ abstract class ConfigurationClassUtils {
 		}
 
 		AnnotationMetadata metadata;
+		// 通过注解注入的bd都是AnnotateGenericBeanDefinition，实现了AnnotatedBeanDefinition
+		// spring内部的bd是RootBeanDefinition，实现了AbstractBeanDefinition
 		if (beanDef instanceof AnnotatedBeanDefinition &&
 				className.equals(((AnnotatedBeanDefinition) beanDef).getMetadata().getClassName())) {
 			// Can reuse the pre-parsed metadata from the given BeanDefinition...
+			// 从当前bean的定义信息中获取元数据信息
 			metadata = ((AnnotatedBeanDefinition) beanDef).getMetadata();
 		}
+		// 判断是否是spring中默认的BeanDefinition
 		else if (beanDef instanceof AbstractBeanDefinition && ((AbstractBeanDefinition) beanDef).hasBeanClass()) {
 			// Check already loaded Class if present...
 			// since we possibly can't even load the class file for this Class.
+			// 获取当前bean对象的Class对象
 			Class<?> beanClass = ((AbstractBeanDefinition) beanDef).getBeanClass();
 			if (BeanFactoryPostProcessor.class.isAssignableFrom(beanClass) ||
 					BeanPostProcessor.class.isAssignableFrom(beanClass) ||
@@ -106,11 +111,15 @@ abstract class ConfigurationClassUtils {
 					EventListenerFactory.class.isAssignableFrom(beanClass)) {
 				return false;
 			}
+			// 根据beanClass生成对应的AnnotationMetadata对象
 			metadata = AnnotationMetadata.introspect(beanClass);
 		}
+		// 如果上述两种情况都不符
 		else {
 			try {
+				// 获取元数据读取器
 				MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(className);
+				// 通过元数据读取器获取注解元数据
 				metadata = metadataReader.getAnnotationMetadata();
 			}
 			catch (IOException ex) {
