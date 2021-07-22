@@ -6,11 +6,12 @@
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 							http://eitan-blog.github.io/schema/eitan  http://eitan-blog.github.io/schema/eitan/user.xsd
 							http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context.xsd">
-	<eitan:user id="user1" userName="eitan" email="eitan_blog@163.com" password="123456"></eitan:user>
+	<context:component-scan base-package="com.eitan.quickstart"></context:component-scan>
+<!--	<eitan:user id="user1" userName="eitan" email="eitan_blog@163.com" password="123456"></eitan:user>-->
 
-	<context:property-placeholder location="classpath*:db.properties"></context:property-placeholder>
-	<bean id="person" class="com.eitan.quickstart.entity.Person">
-		<property name="id" value="1"></property>
-		<property name="name" value="zs"></property>
-	</bean>
+<!--	<context:property-placeholder location="classpath*:db.properties"></context:property-placeholder>-->
+<!--	<bean id="person" class="com.eitan.quickstart.entity.Person">-->
+<!--		<property name="id" value="1"></property>-->
+<!--		<property name="name" value="zs"></property>-->
+<!--	</bean>-->
 </beans>
