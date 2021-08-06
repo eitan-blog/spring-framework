@@ -289,6 +289,9 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 					logger.debug("Bean definition has already been processed as a configuration class: " + beanDef);
 				}
 			}
+			// 判断当前beanDef是否是一个配置类，并为BeanDefinition设置属性为lite或者full，此处设置属性值是为了进行后续调用
+			// 如果Configuration配置了proxyBeanMethods代理为true则为full
+			// 如果加了@Bean、@Component、@ComponentScan、@Import、@ImportSource注解则为lite
 			// 判断当前beanDef是否加了@Configuration注解或者是@Bean,@Component,@ComponentScan,@Import,@ImportSource注解
 			else if (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, this.metadataReaderFactory)) {
 				// 添加到对应的集合中
@@ -336,11 +339,13 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		ConfigurationClassParser parser = new ConfigurationClassParser(
 				this.metadataReaderFactory, this.problemReporter, this.environment,
 				this.resourceLoader, this.componentScanBeanNameGenerator, registry);
-
+		// 存放 BeanDefinitionHolder 对象
 		Set<BeanDefinitionHolder> candidates = new LinkedHashSet<>(configCandidates);
+		// 存放扫描包下的所有 bean
 		Set<ConfigurationClass> alreadyParsed = new HashSet<>(configCandidates.size());
 		do {
 			StartupStep processConfig = this.applicationStartup.start("spring.context.config-classes.parse");
+			// 解析 @Controller、@Import、@ImportSource、@ComponentScan、@ComponentScans、@Bean的BeanDefinition
 			parser.parse(candidates);
 			parser.validate();
 

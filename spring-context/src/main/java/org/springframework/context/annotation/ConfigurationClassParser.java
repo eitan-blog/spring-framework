@@ -224,16 +224,19 @@ class ConfigurationClassParser {
 
 
 	protected void processConfigurationClass(ConfigurationClass configClass, Predicate<String> filter) throws IOException {
-		// 判断是否跳过解析
+		// 判断是否跳过解析-@Conditional标签条件装配
 		if (this.conditionEvaluator.shouldSkip(configClass.getMetadata(), ConfigurationPhase.PARSE_CONFIGURATION)) {
 			return;
 		}
 
 		// 处理Imported的情况，当前类是否被别的类Import
+		// 第一次进入的时候，configurationClass的size为0，existingClass肯定为null，在此处理configuration重复import
+		// 如果同一个配置类被处理两次，两次都属于import的则合并导入类，如果配置类不是被导入的，则移除旧的使用新的配置类
 		ConfigurationClass existingClass = this.configurationClasses.get(configClass);
 		if (existingClass != null) {
 			if (configClass.isImported()) {
 				if (existingClass.isImported()) {
+					// 如果要处理的配置类configclass在已经分析处理的配置类中已存在，合并两者的importBy属性
 					existingClass.mergeImportedBy(configClass);
 				}
 				// Otherwise ignore new imported config class; existing non-imported class overrides it.
@@ -248,7 +251,8 @@ class ConfigurationClassParser {
 		}
 
 		// Recursively process the configuration class and its superclass hierarchy.
-		// 处理配置类，由于配置类可能存在父类（若父类的全类名是以java开头的，则除外）,所有需要将configClass变成sourceClass去解析，然后返回sourceClass的父类
+		// 处理配置类，由于配置类可能存在父类（若父类的全类名是以java开头的，则除外）,所以需要将configClass变成sourceClass去解析，然后返回sourceClass的父类
+		// 如果此时父类为空，则不进行while循环去解析，如果父类不为空，则会循环去解析父类
 		// SourceClass的意义：简单的包装类，目的是为了同一的方式去处理带有注解的类，不管这些类是否如何加载的
 		SourceClass sourceClass = asSourceClass(configClass, filter);
 		do {
@@ -272,7 +276,7 @@ class ConfigurationClassParser {
 	protected final SourceClass doProcessConfigurationClass(
 			ConfigurationClass configClass, SourceClass sourceClass, Predicate<String> filter)
 			throws IOException {
-
+		// @Configuration继承@Component
 		if (configClass.getMetadata().isAnnotated(Component.class.getName())) {
 			// Recursively process any member (nested) classes first
 			// 首先处理内部类，最终还是调用此方法
@@ -368,6 +372,7 @@ class ConfigurationClassParser {
 	private void processMemberClasses(ConfigurationClass configClass, SourceClass sourceClass,
 			Predicate<String> filter) throws IOException {
 
+		// 找到内部类，内部类也可能是一个配置类
 		Collection<SourceClass> memberClasses = sourceClass.getMemberClasses();
 		if (!memberClasses.isEmpty()) {
 			List<SourceClass> candidates = new ArrayList<>(memberClasses.size());
@@ -456,14 +461,17 @@ class ConfigurationClassParser {
 	 * @throws IOException if loading a property source failed
 	 */
 	private void processPropertySource(AnnotationAttributes propertySource) throws IOException {
+		// 获取name属性
 		String name = propertySource.getString("name");
 		if (!StringUtils.hasLength(name)) {
 			name = null;
 		}
+		// 获取encoding属性
 		String encoding = propertySource.getString("encoding");
 		if (!StringUtils.hasLength(encoding)) {
 			encoding = null;
 		}
+		// 获取value属性
 		String[] locations = propertySource.getStringArray("value");
 		Assert.isTrue(locations.length > 0, "At least one @PropertySource(value) location is required");
 		boolean ignoreResourceNotFound = propertySource.getBoolean("ignoreResourceNotFound");
@@ -474,8 +482,11 @@ class ConfigurationClassParser {
 
 		for (String location : locations) {
 			try {
+				// 处理属性值的占位符
 				String resolvedLocation = this.environment.resolveRequiredPlaceholders(location);
+				// 将指定位置的资源转化为resource对象
 				Resource resource = this.resourceLoader.getResource(resolvedLocation);
+				// 添加resource对象为属性资源
 				addPropertySource(factory.createPropertySource(name, new EncodedResource(resource, encoding)));
 			}
 			catch (IllegalArgumentException | FileNotFoundException | UnknownHostException | SocketException ex) {

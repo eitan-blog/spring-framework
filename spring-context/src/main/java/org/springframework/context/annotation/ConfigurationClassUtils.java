@@ -131,10 +131,13 @@ abstract class ConfigurationClassUtils {
 			}
 		}
 
+		// 获取bean定义的的元数据被@Configuration注解标注的属性字典值
 		Map<String, Object> config = metadata.getAnnotationAttributes(Configuration.class.getName());
+		// 如果bean被@Configuration注解标注，且属性proxyBeanMethods为false，则将bean定义为full
 		if (config != null && !Boolean.FALSE.equals(config.get("proxyBeanMethods"))) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_FULL);
 		}
+		// 如果bean被@Configuration注解标注，且被注解@Component、@ComponentScan、@Import、@ImportResource或者@Bean标记，则将bean定义标记为lite
 		else if (config != null || isConfigurationCandidate(metadata)) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_LITE);
 		}
@@ -165,6 +168,7 @@ abstract class ConfigurationClassUtils {
 		}
 
 		// Any of the typical annotations found?
+		// 检查是否被注解@Component、@ComponentScan、@Import、@ImportResource标注
 		for (String indicator : candidateIndicators) {
 			if (metadata.isAnnotated(indicator)) {
 				return true;
@@ -172,6 +176,7 @@ abstract class ConfigurationClassUtils {
 		}
 
 		// Finally, let's look for @Bean methods...
+		// 最后检查是否有@Bean标注的方法
 		return hasBeanMethods(metadata);
 	}
 
