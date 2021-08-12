@@ -251,6 +251,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			throws BeansException {
 
 		// 提取对应的beanName，当bean对象实现FactoryBean接口之后就会变成&beanName
+		// 这一步的操作是去除&符号
 		String beanName = transformedBeanName(name);
 		Object beanInstance;
 

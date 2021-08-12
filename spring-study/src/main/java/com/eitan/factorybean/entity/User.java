@@ -1,6 +1,6 @@
 package com.eitan.factorybean.entity;
 
-public class User extends Persion{
+public class User {
 	private String username;
 
 	public String password;
