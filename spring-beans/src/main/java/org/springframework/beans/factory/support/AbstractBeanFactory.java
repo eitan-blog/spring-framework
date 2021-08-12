@@ -316,6 +316,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				// 此处做了beanDefinition对象的转换，当我们从xml中加载beanDefiniton对象的时候，封装的对象是GeniricBeanDefinition
 				// 此处要做类型转换，如果是子类bean的话，会合并父类相关属性
 				RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
+				// 检查这个BeanDefinition是否是抽象的，如果是抽象的就抛出异常
 				checkMergedBeanDefinition(mbd, beanName, args);
 
 				// Guarantee initialization of beans that the current bean depends on.
