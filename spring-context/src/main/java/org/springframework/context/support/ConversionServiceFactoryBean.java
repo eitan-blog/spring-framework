@@ -57,7 +57,7 @@ public class ConversionServiceFactoryBean implements FactoryBean<ConversionServi
 	private Set<?> converters;
 
 	/**
-	 * 如果没有
+	 * 如果没有自定义的conversionService，则默认使用的是DefaultConversionService
 	 */
 	@Nullable
 	private GenericConversionService conversionService;
