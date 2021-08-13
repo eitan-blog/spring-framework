@@ -54,24 +54,32 @@ import org.springframework.util.StringUtils;
 public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationStrategy {
 
 	/**
+	 * 如果没有override方法覆盖的话，那么索引位置为0
+	 *
 	 * Index in the CGLIB callback array for passthrough behavior,
 	 * in which case the subclass won't override the original class.
 	 */
 	private static final int PASSTHROUGH = 0;
 
 	/**
+	 * 如果有lookup-method的覆盖，那么索引位置为1
+	 *
 	 * Index in the CGLIB callback array for a method that should
 	 * be overridden to provide <em>method lookup</em>.
 	 */
 	private static final int LOOKUP_OVERRIDE = 1;
 
 	/**
+	 * 如果有replace-method的覆盖，那么索引位置为2
+	 *
 	 * Index in the CGLIB callback array for a method that should
 	 * be overridden using generic <em>method replacer</em> functionality.
 	 */
 	private static final int METHOD_REPLACER = 2;
 
-
+	/**
+	 * 子类重写SimpleInstantiationStrategy中的instantiateWithMethodInjection方法
+	 */
 	@Override
 	protected Object instantiateWithMethodInjection(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) {
 		return instantiateWithMethodInjection(bd, beanName, owner, null);
@@ -82,6 +90,7 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 			@Nullable Constructor<?> ctor, Object... args) {
 
 		// Must generate CGLIB subclass...
+		// 必须生成一个CGLIB的子类
 		return new CglibSubclassCreator(bd, owner).instantiate(ctor, args);
 	}
 
