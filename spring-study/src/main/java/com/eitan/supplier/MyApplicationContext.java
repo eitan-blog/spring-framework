@@ -1,6 +1,5 @@
 package com.eitan.supplier;
 
-import com.eitan.beforeinstantiation.entity.BeforeInstantiation;
 import com.eitan.supplier.entity.User;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;

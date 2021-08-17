@@ -12,6 +12,5 @@ public class SupplierBeanFactoryPostProcessor implements BeanFactoryPostProcesso
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 		GenericBeanDefinition genericBeanDefinition = (GenericBeanDefinition) beanFactory.getBeanDefinition("user");
 		genericBeanDefinition.setInstanceSupplier(CreateSupplier::createUser);
-		genericBeanDefinition.setBeanClass(User.class);
 	}
 }
