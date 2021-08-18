@@ -253,19 +253,33 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
 		this.injectionMetadataCache.remove(beanName);
 	}
 
+	/**
+	 * 获取构造器集合
+	 * 		如果有多个Autowire，required为true，不管有没有默认的构造方法，会报异常
+	 * 		如果只有一个Autowire，required为false，没有默认的构造方法，会报警告
+	 * 		其它情况都可以，但是以有Autowire的构造方法优先，然后才是默认构造方法
+	 * @param beanClass the raw class of the bean (never {@code null})
+	 * @param beanName the name of the bean
+	 * @return
+	 * @throws BeanCreationException
+	 */
 	@Override
 	@Nullable
 	public Constructor<?>[] determineCandidateConstructors(Class<?> beanClass, final String beanName)
 			throws BeanCreationException {
 
 		// Let's check for lookup methods here...
+		// 处理@lookup注解的方法，如果集合中没有包含beanName,则走一遍bean中所有方法过滤是否含有lookup方法
 		if (!this.lookupMethodsChecked.contains(beanName)) {
 			if (AnnotationUtils.isCandidateClass(beanClass, Lookup.class)) {
 				try {
 					Class<?> targetClass = beanClass;
 					do {
+						// 遍历当前类及所有父类，找出lookup注解的方法进行处理
 						ReflectionUtils.doWithLocalMethods(targetClass, method -> {
+							// 获取method上的lookup注解
 							Lookup lookup = method.getAnnotation(Lookup.class);
+							// 存在此注解的话，就将方法和注解中的内容构建LookupOverride对象，设置进BeanDefinition中
 							if (lookup != null) {
 								Assert.state(this.beanFactory != null, "No BeanFactory available");
 								LookupOverride override = new LookupOverride(method, lookup.value());
@@ -282,6 +296,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
 						});
 						targetClass = targetClass.getSuperclass();
 					}
+					// 遍历父类，直到Object
 					while (targetClass != null && targetClass != Object.class);
 
 				}
@@ -289,6 +304,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
 					throw new BeanCreationException(beanName, "Lookup method resolution failed", ex);
 				}
 			}
+			// 无论对象中是否存在@Lookup方法，过滤完后都会放到集合中，证明bean已经检查完@Lookup注解
 			this.lookupMethodsChecked.add(beanName);
 		}
 
