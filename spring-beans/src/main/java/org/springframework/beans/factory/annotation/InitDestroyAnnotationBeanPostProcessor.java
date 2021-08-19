@@ -146,7 +146,9 @@ public class InitDestroyAnnotationBeanPostProcessor
 
 	@Override
 	public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName) {
+		// 找出@PostConstruct和@PreDestroy标记的方法
 		LifecycleMetadata metadata = findLifecycleMetadata(beanType);
+		// 这一个是将找出的方法注册进beanDefinition中
 		metadata.checkConfigMembers(beanDefinition);
 	}
 
@@ -229,15 +231,20 @@ public class InitDestroyAnnotationBeanPostProcessor
 			final List<LifecycleElement> currInitMethods = new ArrayList<>();
 			final List<LifecycleElement> currDestroyMethods = new ArrayList<>();
 
+			// 反射获取当前类中所有方法并依次对其调用第二个参数的lambda表达式
 			ReflectionUtils.doWithLocalMethods(targetClass, method -> {
+				// 当前方法的注解包含initAnnotationType注解时(@PostConstruct)
 				if (this.initAnnotationType != null && method.isAnnotationPresent(this.initAnnotationType)) {
+					// 将方法封装为LifecycleElement对象，存储起来
 					LifecycleElement element = new LifecycleElement(method);
 					currInitMethods.add(element);
 					if (logger.isTraceEnabled()) {
 						logger.trace("Found init method on class [" + clazz.getName() + "]: " + method);
 					}
 				}
+				// 当前方法的注解包含destroyAnnotationType注解时(@PreDestroy)
 				if (this.destroyAnnotationType != null && method.isAnnotationPresent(this.destroyAnnotationType)) {
+					// 将方法封装为LifecycleElement对象，存储起来
 					currDestroyMethods.add(new LifecycleElement(method));
 					if (logger.isTraceEnabled()) {
 						logger.trace("Found destroy method on class [" + clazz.getName() + "]: " + method);
